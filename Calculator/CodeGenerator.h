@@ -10,64 +10,94 @@ class Identifier;
 class VariableCnter
 {
 public:
+	VariableCnter(VariableCnter* outer = nullptr)
+	{
+		m_outer = outer;
+	}
+	VariableCnter* getOuter()
+	{
+		return m_outer;
+	}
 	void addVariable(Identifier* var)
 	{
-
+		m_offsets.insert(std::make_pair(var, cnter++));
 	}
-	int getOffset(Identifier* var)
+	bool hasVariable(Identifier* var)
+	{
+		if (m_offsets.find(var) != m_offsets.end())
+			return true;
+		return m_outer != nullptr && m_outer->hasVariable(var);
+	}
+	// 正数如果var在FP指针之后，否则负数
+	int getOffsetFromCurFP(Identifier* var)
 	{
 		if (m_offsets.find(var) != m_offsets.end())
 			return m_offsets[var];
-		// 不在当前作用域内
-		assert(m_outter != nullptr);
-		//return m_outter->getOffset()
-		return 0;
-		
+		else
+			return m_outer->getOffsetFromNextFP(var);
 	}
-	int getSize()
+	int getCurScopeVarNum()
 	{
 		return cnter;
 	}
+	int getScopeChainVarNum()
+	{
+		return (m_outer == nullptr ? 0 : m_outer->getScopeChainVarNum()+m_outer->cnter);
+	}
+private:
 	int cnter = 0;
 	std::map<Identifier*,int> m_offsets;
-	VariableCnter* m_outter;
-
+	VariableCnter* m_outer;
+	// 总是负数，因为var总在下一FP之前
+	int getOffsetFromNextFP(Identifier* var)
+	{
+		if (m_offsets.find(var) != m_offsets.end())
+			return m_offsets[var]-cnter;
+		else
+			return -cnter + m_outer->getOffsetFromNextFP(var);
+	}
 };
+
 class CodeGenerator:public Visitor
 {
 public:
-	int newLable()
+	CodeGenerator(const char* p,bool out):output(p,out)
 	{
-		static int i = 0;
-		return i++;
+		m_localVariables = new VariableCnter;
+		m_gloablVariables = new VariableCnter();
 	}
-	void addFunction(Identifier* funname)
+	~CodeGenerator()
 	{
+		delete m_localVariables;
+		delete m_gloablVariables;
 		
 	}
-	int getFunction(Identifier* funname)
-	{
-		return 0;
-	}
-	void addVariable(Identifier* id)
-	{
-
-	}
-	int getVariable(Identifier* id)
-	{
-		return 0;
-	}
-	int getTop()
-	{
-		return 0;
-	}
-	int varCnter;
-	
+public:
+	VariableCnter* m_localVariables;
 	VariableCnter* m_gloablVariables;
+	Identifier* m_lastVisitedVar;
+public:
+	int newLable()
+	{
+		static int i = 1;
+		return i++;
+	}
+	void addFunction(Identifier* funname);
+	int getFunctionAddr(Identifier* funname)
+	{
+		if (m_funAddrs.find(funname) != m_funAddrs.end())
+			return m_funAddrs[funname];
+		return -1;
+	}
+	std::map<Identifier*, int> m_funAddrs;
+	int m_funAddr;
+public:
 
-	int funAddr;
+
 	CodeOutput output;
-	InstructionSet s;
+
+	InstructionSet is;
+
 	virtual void visitTranslationUnit(TranslationUnit* unit);
 
 	virtual void visitBinaryExpression(BinaryExpression* exp);

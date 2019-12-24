@@ -83,7 +83,6 @@ void Parser::expect(int type)
 			cout << "error: at row " << (*m_pos)->m_row << ",col " << (*m_pos)->m_col << ",missing )\n";
 		if (type == Token::THEN)
 			cout << "error: at row " << (*m_pos)->m_row << ",col " << (*m_pos)->m_col << ",missing keyword then\n";
-		
 	}
 	else
 	{
@@ -208,6 +207,7 @@ Statement* Parser::parseReturnStatement()
 
 Statement* Parser::parsePrintStatement()
 {
+	expect(Token::PRINT);
 	auto exp=parseExpression();
 	expect(';');
 	return new PrintStatement(exp);
@@ -351,10 +351,15 @@ void Parser::parseFunctionBody()
 	else
 	{
 		int len = args.size();
+		m_funDef->name += "(";
 		for (int i = 0; i < len; i++)
 		{
-			m_scope->addIdentifier(args[i], Identifier::newInstance(argtypes[i], args[i]));
+			auto id = Identifier::newInstance(argtypes[i], args[i]);
+			m_scope->addIdentifier(args[i], id);
+			arglist.push_back(id);
+			m_funDef->name += args[i]+",";
 		}
+		m_funDef->name[m_funDef->name.length() - 1] = ')';
 	}
 	auto body=parseStatement();
 	m_funDef->setArglist(arglist);
@@ -375,7 +380,7 @@ Expression* Parser::parseAssignmentExpression()
 	if (attempt('='))
 	{
 		auto rhs = parseAssignmentExpression();
-		if (!lhs->isLval())
+		if (lhs->toObject()==nullptr)
 		{
 			error(lhs->name + " is not a left value\n");
 		}

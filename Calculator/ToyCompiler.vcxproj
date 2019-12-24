@@ -177,6 +177,7 @@
     <ClInclude Include="Token.h" />
     <ClInclude Include="Type.h" />
     <ClInclude Include="Visitor.h" />
+    <ClInclude Include="VM.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

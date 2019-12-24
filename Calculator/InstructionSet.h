@@ -3,35 +3,30 @@
 class InstructionSet
 {
 public:
-	std::string PushReg()
+	std::string Halt()
 	{
-		return "pushReg";
+		return "halt";
 	}
-	std::string PopReg()
+	std::string Jal(int lable)
 	{
-		return "popReg";
-	}
-	std::string Jal(int i)
-	{
-		return "jal " + std::to_string(i);
-	}
-	std::string Jr()
-	{
-		return "jr";
+		return "jal " + std::to_string(lable);
 	}
 	std::string Lable(int i)
 	{
 		return "lable " + std::to_string(i);
 	}
-	std::string Jiff(int i)
+	std::string Jiff(int lable)
 	{
-		return "jiff " + std::to_string(i);
+		return "jiff "+std::to_string(lable);
 	}
-	std::string Jump(int i)
+	std::string Jump()
 	{
-		return "jump " + std::to_string(i);
+		return "jump";
 	}
-
+	std::string Jl()
+	{
+		return "jl";
+	}
 	std::string Pushi(int value)
 	{
 		return "pushi " + std::to_string(value);
@@ -51,17 +46,9 @@ public:
 			return "pushb false";
 		}
 	}
-	std::string Popi()
+	std::string Pop()
 	{
-		return "popi";
-	}
-	std::string Popf()
-	{
-		return "popf";
-	}
-	std::string Popb()
-	{
-		return "popb";
+		return "pop";
 	}
 
 	std::string Printi()
@@ -175,18 +162,30 @@ public:
 	{
 		return "divf";
 	}
-
-	
-
-	std::string Rfm()
+	std::string Rfsm()
 	{
-		return "rfm";// res=memory[fp+r1]
+		return "rfsm";// opnd=stack memory[fp+offset]
 	}
-	std::string Wtm()
+	std::string Wtsm()
 	{
-		return "wtm";// memory[fp+r1]=res
+		return "wtsm";// stack memory[fp+offset]=res
 	}
-
+	std::string Rfgm()
+	{
+		return "rfgm";// res=global memory[fp+r1]
+	}
+	std::string Wtgm()
+	{
+		return "wtgm";// global memory[fp+r1]=res
+	}
+	std::string IncFP()
+	{
+		return "incfp";
+	}
+	std::string DecFP()
+	{
+		return "decfp";
+	}
 
 };
 

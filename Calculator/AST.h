@@ -64,8 +64,10 @@ class Expression :public ASTNode
 {
 public:
 	virtual Type* getType() { return nullptr; }
-	virtual bool isLval() { return false; }
-
+	virtual Object* toObject()
+	{
+		return nullptr;
+	}
 };
 class IConstance :public Expression
 {
@@ -129,10 +131,11 @@ public:
 class Object :public Expression
 {
 public:
-	Object(Identifier* id)
+	Object(Identifier* id,bool inLeft=false)
 	{
 		m_id = id;
 		name = id->name;
+		m_inLeft = inLeft;
 	}
 	virtual Type* getType()
 	{
@@ -142,8 +145,15 @@ public:
 	{
 		visitor->visitObject(this);
 	}
-	virtual bool isLval() { return true; }
-
+	bool inLeft() 
+	{ 
+		return m_inLeft; 
+	}
+	virtual Object* toObject()
+	{
+		return this;
+	}
+	bool m_inLeft;
 	Identifier* m_id;
 	
 };
