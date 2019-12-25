@@ -1,0 +1,57 @@
+语句类型：
+<statement>::=
+	<if statement>
+	|<while statement>
+	|<expression statement>
+	|<break statement>
+	|<continue statement>
+	|<compound statement>
+	|<return statement>
+	|<print statement>
+	|<variable declaration statement>
+	|<function declaration statement>
+
+<if statement>::=if<expression>then<statement>[else<statement>]
+<while statement>::=while<expression><statement>
+<expression statement>::=[<expression>];
+<break statement>::=break;
+<continue statement>::=continue;
+<compound statement>::={<statement>*}
+<return statement>::=return <expression>;
+<print statement>::=print <expression>;
+<variable declaration statement>::=<base type><function name>=<expression>;
+<function declaration statement>::=function<base type>([typelist])<function name>[=<function definition>]
+<function name>::=<identifier>
+<function definition>::=<idlist>:<statement>
+<idlist>::=<identifier>|<identifier>,<idlist>
+
+
+
+类型：
+<bool constance>::=true|false
+<int constance>::=digit*
+<float constance>::=<int constance>.<int constance>
+<base type>::=int|float|bool
+<typelist>::=<base type>|<base type>,<typelist>
+
+支持的表达式：
+<expression>::=
+	<assignment expression>
+	|<binary expression>
+	|<unary expression>
+	|<primary expression>
+<assignment expression>::=<object>=<expression>	
+<binary expression>::=<expression><binary operator><expression>
+	<binary operator>::=or|and|==|!=|>|<|>=|<=|+|-|*|/
+<unary expression>::=<unary operator><expression>
+	<unary operator>::=+|-|!|<base type>
+<primary expression>::=
+	|(<expression>)
+	|<bool constance>
+	|<int constance>
+	|<float constance>
+	|<function call>
+	|<object>
+<function call>::=<function name>(<expression list>)
+<expression list>::=<expression>|<expression>,><expression list>
+<object>::=<identifier>

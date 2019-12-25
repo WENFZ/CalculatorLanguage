@@ -1,0 +1,42 @@
+HALT,
+WTGM,write to global memory
+WTSM,write to stack memory
+RFGM,read from global memory
+RFSM,read from stack memory
+INCFP,increase frame pointer
+DECFP,decrease frame pointer
+JAL,jump and link
+JUMP,
+JL,jump lable
+JIFF,jump if false
+PRINTI,
+PRINTF,
+PRINTB,
+PUSHI,
+PUSHF,
+PUSHB,
+POP,
+TOI,to int
+TOF,to float
+TOB,to bool
+NAGI,nagate int
+NAGF,nagate float
+OR,
+AND,
+NOT,
+EQI,==
+EQF,
+EQB,
+GTI,>
+GTF,
+LTI,<
+LTF,
+ADDI,+
+ADDF,-
+SUBI,-
+SUBF,-
+MULI,*
+MULF,*
+DIVI,/
+DIVF,/
+	
