@@ -410,6 +410,55 @@ public:
 	std::list<Statement*> m_stmts;
 };
 
+class WhileStatement :public Statement
+{
+public:
+	WhileStatement()
+	{
+		name = "while statement";
+	}
+	~WhileStatement()
+	{
+		delete m_condition;
+		delete m_body;
+	}
+	void set(Expression* condition, Statement* body)
+	{
+		m_condition = condition;
+		m_body = body;
+	}
+	virtual void accept(Visitor* visitor)
+	{
+		visitor->visitWhileStatement(this);
+	}
+	Expression* m_condition;
+	Statement* m_body;
+};
+class BreakStatement :public Statement
+{
+public:
+	BreakStatement()
+	{
+		name = "break";
+	}
+	virtual void accept(Visitor* visitor)
+	{
+		visitor->visitBreakStatement(this);
+	}
+};
+class ContinueStatement :public Statement
+{
+public:
+	ContinueStatement()
+	{
+		name = "continue";
+	}
+	virtual void accept(Visitor* visitor)
+	{
+		visitor->visitContinueStatement(this);
+	}
+};
+
 
 class ReturnStatement :public Statement
 {
@@ -430,6 +479,7 @@ public:
 	FunctionDeclaration* m_funDef;
 	Expression* m_expression;
 };
+
 class PrintStatement :public Statement
 {
 public:

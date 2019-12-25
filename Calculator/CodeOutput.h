@@ -23,6 +23,8 @@ public:
 	}
 	std::ostream& operator<<(std::string codeseg)
 	{
+		//if (codeseg == "{" || codeseg == "}" || codeseg[0] == '#')
+		//	return out;
 		if(m_hasCout)
 			std::cout << codeseg << std::endl;
 		out << codeseg<<std::endl;

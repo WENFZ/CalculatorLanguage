@@ -20,7 +20,7 @@ public:
 	int peek();
 	int next();
 	bool attempt(int ch);
-
+	void error(std::string str);
 
 
 	bool skipWhitespace();

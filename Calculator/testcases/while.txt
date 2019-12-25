@@ -1,0 +1,38 @@
+function int(int)main=x:
+{
+
+	var int i=0;
+	var int sum=0;
+	
+	while i<100 
+	{
+		i=i+1;
+		sum=sum+i;
+	}
+	print sum;
+	
+	i=0;
+	while i<500
+	{
+	
+		i=i+1;
+		if(i>10)
+			break;
+	}
+	print i;#5050#
+
+	i=0;
+	sum=0;
+	var bool isOdd=false;
+	while i<10
+	{
+		i=i+1;
+		isOdd=!isOdd;
+		if isOdd then
+			continue;
+		sum=sum+i;
+		print sum;
+	}
+	print i;#30#
+	return 0;
+}

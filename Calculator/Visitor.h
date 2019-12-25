@@ -13,6 +13,9 @@ class VariableDeclaration;
 class FunctionDeclaration;
 class ExpressionStatement;
 class ReturnStatement;
+class WhileStatement;
+class BreakStatement;
+class ContinueStatement;
 class Object;
 class Visitor
 {
@@ -36,6 +39,11 @@ public:
 	virtual void visitReturnStatement(ReturnStatement* stmt) = 0;
 	virtual void visitCompoundStatement(CompoundStatement* stmt) = 0;
 	virtual void visitExpressionStatement(ExpressionStatement* stmt) = 0;
+	virtual void visitWhileStatement(WhileStatement* stmt) = 0;
+	virtual void visitBreakStatement(BreakStatement* stmt) = 0;
+	virtual void visitContinueStatement(ContinueStatement* stmt) = 0;
+
+
 
 	virtual void visitVariableDeclaration(VariableDeclaration* decl) = 0;
 	virtual void visitFunctionDeclaration(FunctionDeclaration* decl) = 0;

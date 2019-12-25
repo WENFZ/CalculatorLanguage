@@ -135,6 +135,12 @@ Statement* Parser::parseStatement()
 		return parseCompoundStatement();
 	case Token::IF:
 		return parseIfStatement();
+	case Token::WHILE:
+		return parseWhileStatement();
+	case Token::BREAK:
+		return parseBreakStatement();
+	case Token::CONTINUE:
+		return parseContinueStatement();
 	case Token::RETURN:
 		return parseReturnStatement();
 	case Token::PRINT:
@@ -142,8 +148,6 @@ Statement* Parser::parseStatement()
 	case Token::INT:
 	case Token::BOOL:
 	case Token::FLOAT:
-		error("missing keyword var or function\n");
-	case Token::VAR:
 		return parseVariableDeclaration();
 	case Token::FUNCTION:
 		return parseFunctionDeclaration();
@@ -223,10 +227,38 @@ Statement* Parser::parseExpressionStatement()
 	return new ExpressionStatement(exp);
 }
 
+Statement* Parser::parseWhileStatement()
+{
+	cout << "parsing while statement\n";
+	expect(Token::WHILE);
+	auto stmt = new WhileStatement();
+	m_whileStatement = stmt;
+	auto exp = parseExpression();
+	auto body = parseStatement();
+	stmt->set(exp, body);
+	m_whileStatement = nullptr;
+	return stmt;
+}
+
+Statement* Parser::parseBreakStatement()
+{
+	if (m_whileStatement != nullptr)
+		error("the break statement is not in an iteration statement");
+	expect(Token::BREAK);
+	return new BreakStatement();
+}
+
+Statement* Parser::parseContinueStatement()
+{
+	if (m_whileStatement != nullptr)
+		error("the break statement is not in an iteration statement");
+	expect(Token::CONTINUE);
+	return new ContinueStatement();
+}
+
 
 Declaration* Parser::parseVariableDeclaration()
 {
-	expect(Token::VAR);
 	static std::map<int, Type*> types =
 	{
 		{Token::INT,Int::newInstance()},
@@ -403,7 +435,7 @@ Expression* Parser::parseBinaryExpression(int level)
 	// == !=
 	// > < >= <= 
 	// + -
-	// * /
+	// * / %
 
 	static vector <set<int>> optrTree =
 	{

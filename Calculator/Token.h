@@ -45,12 +45,16 @@ public:
 		THEN,
 		ELSE,
 
+		WHILE,
+		DO,
+		BREAK,
+		CONTINUE,
+
 		RETURN,
 		PRINT,
 		IDENTIFIER,
 		
 		
-		VAR,
 		FUNCTION,
 
 
@@ -67,6 +71,7 @@ public:
 		m_col = col;
 		m_value = value;
 	}
+	
 	int m_type;
 	std::string m_value;
 	int m_row;

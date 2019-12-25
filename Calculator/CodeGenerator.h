@@ -2,6 +2,7 @@
 #include <list>
 #include <map>
 #include <cassert>
+#include <stack>
 #include "Visitor.h"
 #include "CodeOutput.h"
 #include "InstructionSet.h"
@@ -14,6 +15,8 @@ public:
 	{
 		m_outer = outer;
 	}
+	
+	
 	VariableCnter* getOuter()
 	{
 		return m_outer;
@@ -40,9 +43,10 @@ public:
 	{
 		return cnter;
 	}
-	int getScopeChainVarNum()
+	int getScopeChainVarNum(VariableCnter* originPoint=nullptr)
 	{
-		return (m_outer == nullptr ? 0 : m_outer->getScopeChainVarNum()+m_outer->cnter);
+		assert(this != originPoint);
+		return m_outer->getScopeChainVarNumHelper(originPoint);
 	}
 private:
 	int cnter = 0;
@@ -55,6 +59,14 @@ private:
 			return m_offsets[var]-cnter;
 		else
 			return -cnter + m_outer->getOffsetFromNextFP(var);
+	}
+	int getScopeChainVarNumHelper(VariableCnter* originPoint)
+	{
+		if (this == originPoint)
+			return cnter;
+		else
+			return m_outer==nullptr ?0:(m_outer->getScopeChainVarNumHelper(originPoint) + cnter);
+
 	}
 };
 
@@ -72,16 +84,26 @@ public:
 		delete m_gloablVariables;
 		
 	}
-public:
-	VariableCnter* m_localVariables;
-	VariableCnter* m_gloablVariables;
-	Identifier* m_lastVisitedVar;
-public:
+	virtual void visitTranslationUnit(TranslationUnit* unit);
+
+private:
+	// lable manager
 	int newLable()
 	{
 		static int i = 1;
 		return i++;
 	}
+private:
+	// identifier manager
+	VariableCnter* m_localVariables;
+	VariableCnter* m_gloablVariables;
+	Identifier* m_lastVisitedVar;
+	
+	VariableCnter* m_whileScope;
+
+
+private:
+	// function manager
 	void addFunction(Identifier* funname);
 	int getFunctionAddr(Identifier* funname)
 	{
@@ -91,14 +113,16 @@ public:
 	}
 	std::map<Identifier*, int> m_funAddrs;
 	int m_funAddr;
-public:
+private:
+	int m_testLable;
+	int m_endLable;
 
+private:
 
 	CodeOutput output;
 
 	InstructionSet is;
 
-	virtual void visitTranslationUnit(TranslationUnit* unit);
 
 	virtual void visitBinaryExpression(BinaryExpression* exp);
 	virtual void visitUnaryExpression(UnaryExpression* exp);
@@ -113,6 +137,9 @@ public:
 	virtual void visitReturnStatement(ReturnStatement* stmt);
 	virtual void visitCompoundStatement(CompoundStatement* stmt);
 	virtual void visitExpressionStatement(ExpressionStatement* stmt);
+	virtual void visitWhileStatement(WhileStatement* stmt);
+	virtual void visitBreakStatement(BreakStatement* stmt);
+	virtual void visitContinueStatement(ContinueStatement* stmt);
 
 	virtual void visitVariableDeclaration(VariableDeclaration* decl);
 	virtual void visitFunctionDeclaration(FunctionDeclaration* decl);

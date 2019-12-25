@@ -12,6 +12,7 @@ class Scope;
 class Declaration;
 class Function;
 class FunctionDeclaration;
+class WhileStatement;
 class Parser
 {
 public:
@@ -44,7 +45,7 @@ public:
 	void enterNewScope(int type);
 	void leaveScope();
 
-	Statement* m_whileStatement;
+	WhileStatement* m_whileStatement;
 	FunctionDeclaration* m_funDef;
 	Function* m_funSignature;
 	
@@ -57,7 +58,12 @@ public:
 	Statement* parseReturnStatement();
 	Statement* parsePrintStatement();
 	Statement* parseExpressionStatement();
-	
+	Statement* parseWhileStatement();
+	Statement* parseBreakStatement();
+	Statement* parseContinueStatement();
+
+
+
 	Expression* parseExpression();
 	Expression* parseAssignmentExpression();
 	Expression* parseBinaryExpression(int level=0);

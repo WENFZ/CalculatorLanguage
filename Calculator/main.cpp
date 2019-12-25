@@ -11,17 +11,15 @@
 #include <list>
 #include "Scope.h"
 #include "CodeGenerator.h"
+#include "VM.h"
 using namespace std;
 
 
 int main()
 {
 	
-
-
-	const char* file = "C:\\Users\\wen\\Desktop\\tcc\\main.txt";
-	//const char* file = "C:\\Users\\wen\\Desktop\\DeclarationTestCases.txt";
-
+	const char* file = "./testcases/while.txt";
+	const char* asmfile = "./testcases/while.asm";
 
 
 	Text text(file);
@@ -29,7 +27,7 @@ int main()
 	lexer.Tokenize();
 	Parser* parser= new Parser(lexer.m_ts);
 	auto u=parser->parseTranslationUnit();
-	CodeGenerator g;
+	CodeGenerator g(asmfile,true);
 	cout << "code:\n";
 	u->accept(&g);
 	
@@ -38,5 +36,10 @@ int main()
 	Identifier::deleteAllInstances();
 	Function::deleteAllInstances();
 	int i = 5;
+
+	VirtualMachine vm;
+	vm.verbose = true;
+	
+	vm.executeFile(asmfile);
 }
 

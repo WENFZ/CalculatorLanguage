@@ -20,6 +20,8 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 
 
 	//	ASSIGN = Token::ASSIGN,			// =
+	output << "{";
+
 	output << "# bianry expression:" + exp->name;
 	
 	int optr = exp->m_optr;
@@ -132,9 +134,9 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 		output << "# calculate result";
 		auto opndType = exp->m_opnd1->getType();
 		if (opndType->toInt() != nullptr)
-			output << is.Addi();
+			output << is.Subi();
 		else if (opndType->toFloat() != nullptr)
-			output << is.Addf();
+			output << is.Subf();
 		else
 			assert(0);
 		break;
@@ -148,9 +150,9 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 		output << "# calculate result";
 		auto opndType = exp->m_opnd1->getType();
 		if (opndType->toInt() != nullptr)
-			output << is.Addi();
+			output << is.Muli();
 		else if (opndType->toFloat() != nullptr)
-			output << is.Addf();
+			output << is.Mulf();
 		else
 			assert(0);
 		break;
@@ -164,9 +166,9 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 		output << "# calculate result";
 		auto opndType = exp->m_opnd1->getType();
 		if (opndType->toInt() != nullptr)
-			output << is.Addi();
+			output << is.Divi();
 		else if (opndType->toFloat() != nullptr)
-			output << is.Addf();
+			output << is.Divf();
 		else
 			assert(0);
 		break;
@@ -193,6 +195,8 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 		break;
 	}
 	output << "# end of binary expression:" + exp->name;
+	output << "}";
+
 }
 
 void CodeGenerator::visitUnaryExpression(UnaryExpression* exp)
@@ -203,6 +207,8 @@ void CodeGenerator::visitUnaryExpression(UnaryExpression* exp)
 		INT = Token::INT,
 		FLOAT = Token::FLOAT,
 		BOOL = Token::BOOL*/
+	output << "{";
+
 	output << "# unary expression:" + exp->name;
 	output << "# calculate opnd";
 	exp->m_opnd->accept(this);
@@ -238,10 +244,14 @@ void CodeGenerator::visitUnaryExpression(UnaryExpression* exp)
 		break;
 	}
 	output << "# end of unary expression:" + exp->name;
+	output << "}";
+
 }
 
 void CodeGenerator::visitFunctionCall(FunctionCall* exp)
 {
+	output << "{";
+
 	output << "# function call :" + exp->name;
 	// 1、将各个参数入栈
 	output << "# push params from right to left";
@@ -264,6 +274,8 @@ void CodeGenerator::visitFunctionCall(FunctionCall* exp)
 	output << is.Pushi(offset);
 	output << is.DecFP();
 	output << "# end of function call";
+	output << "}";
+
 }
 
 void CodeGenerator::visitIConstance(IConstance* exp)
@@ -284,6 +296,8 @@ void CodeGenerator::visitBConstance(BConstance* exp)
 void CodeGenerator::visitObject(Object* obj)
 {
 	// 将obj对应的内存地址或值放在操作数栈上
+	output << "{";
+
 	m_lastVisitedVar = obj->m_id;
 	if (m_localVariables->hasVariable(m_lastVisitedVar))
 	{
@@ -305,10 +319,14 @@ void CodeGenerator::visitObject(Object* obj)
 			output << is.Rfgm();
 		output << "# end of global object access: " + obj->name;
 	}
+	output << "}";
+
 }
 
 void CodeGenerator::visitIfStatement(IfStatement* stmt)
 {
+	output << "{";
+
 	output << "# if statement:";
 	output << "# calculate condition value:";
 	stmt->m_condition->accept(this);
@@ -327,10 +345,14 @@ void CodeGenerator::visitIfStatement(IfStatement* stmt)
 		stmt->m_elseStatement->accept(this);
 	output << is.Lable(endif);
 	output << "# end of if statement";
+	output << "}";
+
 }
 
 void CodeGenerator::visitPrintStatement(PrintStatement* stmt)
 {
+	output << "{";
+
 	output << "# print statement:"+stmt->m_expression->name;
 	output << "# calculate value to be printed";
 	stmt->m_expression->accept(this);
@@ -344,15 +366,19 @@ void CodeGenerator::visitPrintStatement(PrintStatement* stmt)
 	else
 		assert(0);
 	output << "# end of print statement: " + stmt->m_expression->name;
+	output << "}";
+
 }
 
 void CodeGenerator::visitReturnStatement(ReturnStatement* stmt)
 {
+	output << "{";
+
 	output << "# return statement: ";
 	output << "# calculate the return value";
 	stmt->m_expression->accept(this);
 	output << "# adjust the FP for potential variables declared within the function";
-	output << is.Pushi(m_localVariables->getScopeChainVarNum());// 1 for return address
+	output << is.Pushi(m_localVariables->getScopeChainVarNum());
 	output << is.DecFP();
 	output << "# fetch return address from stack memory";
 	output << is.Pushi(1);
@@ -362,10 +388,14 @@ void CodeGenerator::visitReturnStatement(ReturnStatement* stmt)
 	output << "# jump to return address";
 	output << is.Jump();
 	output << "# end of return statement";
+	output << "}";
+
 }
 
 void CodeGenerator::visitCompoundStatement(CompoundStatement* stmt)
 {
+	output << "{";
+
 	output << "# CompoundStatement";
 	output << "# adjust FP";
 	int offset = m_localVariables->getCurScopeVarNum();
@@ -385,22 +415,74 @@ void CodeGenerator::visitCompoundStatement(CompoundStatement* stmt)
 	output << is.Pushi(offset);
 	output << is.DecFP();
 	output << "# end of CompoundStatement";
+	output << "}";
+
 }
 
 void CodeGenerator::visitExpressionStatement(ExpressionStatement* stmt)
 {
 	if (stmt->m_expression != nullptr)
 	{
+		output << "{";
+
 		output << "# expression statement";
 		stmt->m_expression->accept(this);
 		output << is.Pop();
 		output << "# end of expression statement";
+		output << "}";
+
 	}
+}
+
+void CodeGenerator::visitWhileStatement(WhileStatement* stmt)
+{
+	m_whileScope = m_localVariables;
+
+	int oldTest = m_testLable;
+	int oldEnd = m_endLable;
+	m_testLable = newLable();
+	m_endLable = newLable();
+	output << "{";
+	output << "# while statement:";
+	
+	output << is.Lable(m_testLable);
+	output << "# while condition:";
+	stmt->m_condition->accept(this);
+	output << is.Jiff(m_endLable);
+	output << "# end of while condition";
+	output << "# while body";
+	stmt->m_body->accept(this);
+	output << "# end of while body";
+	output << is.Pushi(m_testLable);
+	output << is.Jl();
+	output << is.Lable(m_endLable);
+	output << "# end of while statement";
+	output << "}";
+	m_testLable = oldTest;
+	m_endLable = oldEnd;
+	m_whileScope = nullptr;
+}
+
+void CodeGenerator::visitBreakStatement(BreakStatement* stmt)
+{
+	output << is.Pushi(m_localVariables->getScopeChainVarNum(m_whileScope));
+	output << is.DecFP();
+	output << is.Pushi(m_endLable);
+	output << is.Jl();
+}
+
+void CodeGenerator::visitContinueStatement(ContinueStatement* stmt)
+{
+	output << is.Pushi(m_localVariables->getScopeChainVarNum(m_whileScope));
+	output << is.DecFP();
+	output << is.Pushi(m_testLable);
+	output << is.Jl();
 }
 
 void CodeGenerator::visitVariableDeclaration(VariableDeclaration* decl)
 {
 	// only for local variable
+	output << "{";
 	output << "# local variable declaration: "+decl->name;
 	output << "# codes for initializer";
 	decl->m_value->accept(this);
@@ -410,6 +492,8 @@ void CodeGenerator::visitVariableDeclaration(VariableDeclaration* decl)
 	output << is.Wtsm();
 	output << is.Pop();
 	output << "# end of local variable declaration " + decl->name;
+	output << "}";
+
 }
 
 void CodeGenerator::visitFunctionDeclaration(FunctionDeclaration* decl)
@@ -420,6 +504,8 @@ void CodeGenerator::visitFunctionDeclaration(FunctionDeclaration* decl)
 	}
 	if (decl->m_body != nullptr)
 	{
+		output << "{";
+
 		auto endoffunction = newLable();
 		output << is.Pushi(endoffunction);
 		output << is.Jl();
@@ -458,6 +544,8 @@ void CodeGenerator::visitFunctionDeclaration(FunctionDeclaration* decl)
 
 		delete m_localVariables;
 		m_localVariables = old;
+		output << "}";
+
 	}
 	
 }
@@ -477,6 +565,7 @@ void CodeGenerator::visitTranslationUnit(TranslationUnit* unit)
 		if (s->toVariableDeclaration() != nullptr)
 		{
 			// 全局变量声明
+			output << "{";
 			output << "# global variable declaration: "+s->name;
 			s->toVariableDeclaration()->m_value->accept(this);
 			m_gloablVariables->addVariable(s->toVariableDeclaration()->m_id);
@@ -485,12 +574,15 @@ void CodeGenerator::visitTranslationUnit(TranslationUnit* unit)
 			output << is.Pop();
 			
 			output << "# end of global variable declaration: " + s->name;
+			output << "}";
+
 		}
 		else
 		{
 			s->accept(this);
 		}
 	}
+	output << "# call main function";
 	output << is.Pushi(0);// main function
 	output << is.Jl();
 	output << is.Halt();

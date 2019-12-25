@@ -8,6 +8,10 @@ static map<string, int>keywords =
 	{"if",Token::IF},
 	{"then",Token::THEN},
 	{"else",Token::ELSE},
+	{"while",Token::WHILE},
+	{"break",Token::BREAK},
+	{"continue",Token::CONTINUE},
+
 
 	{"int",Token::INT},
 	{"float",Token::FLOAT},
@@ -15,7 +19,6 @@ static map<string, int>keywords =
 	{"true",Token::TRUE},
 	{"false",Token::FALSE},
 
-	{"var",Token::VAR},
 	{"function",Token::FUNCTION},
 
 	{"return",Token::RETURN},
@@ -39,6 +42,9 @@ void Lexer::Tokenize()
 	{
 		auto token = readToken();
 		
+		if (token == nullptr)
+			continue;
+
 		m_ts.push_back(token);
 		if (token->m_type == Token::END)
 			break;
@@ -63,6 +69,10 @@ bool Lexer::attempt(int ch)
 		return true;
 	}
 	return false;
+}
+
+void Lexer::error(std::string str)
+{
 }
 
 bool Lexer::skipWhitespace()
@@ -148,10 +158,10 @@ Token* Lexer::readToken()
 		if(isalpha(c)||c=='_')
 			return readIdentifierOrKeyword();
 		// real default:
-		assert(0);
+		error("unknown token");
 
 	}
-	assert(0);
+	
 	return nullptr;
 }
 

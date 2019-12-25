@@ -57,6 +57,7 @@ struct Instruction
 		NAGF,
 		OR,
 		AND,
+		NOT,
 		EQI,
 		EQF,
 		EQB,
@@ -85,8 +86,9 @@ struct Instruction
 class VirtualMachine
 {
 public:
-	
+	bool verbose;
 	map<int, string> strins;// for debugging
+	map<int, int> pc2line;
 	void executeFile(const char* file, int param = 0)
 	{
 		cout << "loading instructions...\n";
@@ -134,6 +136,7 @@ public:
 			{"tob",Instruction::TOB},
 			{"nagi",Instruction::NAGI},
 			{"nagf",Instruction::NAGF},
+			{"not",Instruction::NOT},
 			{"or",Instruction::OR},
 			{"and",Instruction::AND},
 			{"eqi",Instruction::EQI},
@@ -169,14 +172,17 @@ public:
 			cout << "fail to open the file\n";
 			return;
 		}
+		int line = 0;
 		while (true)
 		{
+			line++;
+
 			Instruction i;
 
 			string str;
 			if (!(in >> str))
 				break;
-			if (str == "#")
+			if (str == "#"||str=="{"||str=="}")
 			{
 				std::getline(in, str);
 				continue;
@@ -224,6 +230,8 @@ public:
 			}
 			strins.insert(make_pair(codeAddr, instr));
 			m_ins.push_back(i);
+			pc2line.insert(make_pair(codeAddr, line));
+
 			codeAddr++;
 			cout << endl;
 		}
@@ -256,69 +264,81 @@ private:
 	}
 	Variable getGlobalVariable(int idx)
 	{
-		cout << "fetch global variable at " << idx << " its value is ";
-		if (m_globalVariables[idx].type == Variable::BOOL)
+		if (verbose)
 		{
-			cout << m_globalVariables[idx].bval ? "true\n" : "false\n";
-		}
-		if (m_globalVariables[idx].type == Variable::INT)
-		{
-			cout << m_globalVariables[idx].ival << endl;
-		}
-		if (m_globalVariables[idx].type == Variable::FLOAT)
-		{
-			cout << m_globalVariables[idx].bval << endl;
+			cout << "fetch global variable at " << idx << " its value is ";
+			if (m_globalVariables[idx].type == Variable::BOOL)
+			{
+				cout << m_globalVariables[idx].bval ? "true\n" : "false\n";
+			}
+			if (m_globalVariables[idx].type == Variable::INT)
+			{
+				cout << m_globalVariables[idx].ival << endl;
+			}
+			if (m_globalVariables[idx].type == Variable::FLOAT)
+			{
+				cout << m_globalVariables[idx].bval << endl;
+			}
 		}
 		return m_globalVariables[idx];
 	}
 	void setGlobalVariable(int idx, Variable var)
 	{
-		cout << "set global variable at " << idx << " to ";
-		if (var.type == Variable::BOOL)
+		if (verbose)
 		{
-			cout << var.bval ? "true\n" : "false\n";
-		}
-		if (var.type == Variable::INT)
-		{
-			cout << var.ival << endl;
-		}
-		if (var.type == Variable::FLOAT)
-		{
-			cout << var.bval << endl;
+			cout << "set global variable at " << idx << " to ";
+			if (var.type == Variable::BOOL)
+			{
+				cout << var.bval ? "true\n" : "false\n";
+			}
+			if (var.type == Variable::INT)
+			{
+				cout << var.ival << endl;
+			}
+			if (var.type == Variable::FLOAT)
+			{
+				cout << var.bval << endl;
+			}
 		}
 		m_globalVariables[idx] = var;
 	}
 	Variable getLocalVariable(int idx)
 	{
-		cout << "fetch local variable at " << idx << " its value is ";
-		if (m_memory[idx].type == Variable::BOOL)
+		if (verbose)
 		{
-			cout << m_memory[idx].bval ? "true\n" : "false\n";
-		}
-		if (m_memory[idx].type == Variable::INT)
-		{
-			cout << m_memory[idx].ival << endl;
-		}
-		if (m_memory[idx].type == Variable::FLOAT)
-		{
-			cout << m_memory[idx].bval << endl;
+			cout << "fetch local variable at " << idx << " its value is ";
+			if (m_memory[idx].type == Variable::BOOL)
+			{
+				cout << m_memory[idx].bval ? "true\n" : "false\n";
+			}
+			if (m_memory[idx].type == Variable::INT)
+			{
+				cout << m_memory[idx].ival << endl;
+			}
+			if (m_memory[idx].type == Variable::FLOAT)
+			{
+				cout << m_memory[idx].bval << endl;
+			}
 		}
 		return m_memory[idx];
 	}
 	void setLocalVariable(int idx, Variable var)
 	{
-		cout << "set local variable at " << idx << " to ";
-		if (var.type == Variable::BOOL)
+		if (verbose)
 		{
-			cout << var.bval ? "true\n" : "false\n";
-		}
-		if (var.type == Variable::INT)
-		{
-			cout << var.ival << endl;
-		}
-		if (var.type == Variable::FLOAT)
-		{
-			cout << var.bval << endl;
+			cout << "set local variable at " << idx << " to ";
+			if (var.type == Variable::BOOL)
+			{
+				cout << var.bval ? "true\n" : "false\n";
+			}
+			if (var.type == Variable::INT)
+			{
+				cout << var.ival << endl;
+			}
+			if (var.type == Variable::FLOAT)
+			{
+				cout << var.bval << endl;
+			}
 		}
 		m_memory[idx] = var;
 	}
@@ -333,7 +353,9 @@ private:
 	{
 		while (true)
 		{
-			//cout << "PC: " << m_pc;
+			if(verbose)
+			cout << "Line: " << pc2line[m_pc]<<","<<strins[m_pc] << endl;
+			//cout << " PC: " << m_pc;
 			//cout << " ,Instruction: " + strins[m_pc] << endl;
 			auto in = m_ins[m_pc++];
 			if (in.opcode == Instruction::HALT)
@@ -417,6 +439,9 @@ private:
 			break;
 		case Instruction::AND:
 			doAnd();
+			break;
+		case Instruction::NOT:
+			doNot();
 			break;
 		case Instruction::EQI:
 			doEqi();
@@ -669,7 +694,7 @@ private:
 		auto o1 = m_opnds.top();
 		m_opnds.pop();
 		Variable n;
-		n.bval = o1.bval > o2.bval;
+		n.bval = o1.ival > o2.ival;
 		n.type = Variable::BOOL;
 		m_opnds.push(n);
 	}
@@ -691,7 +716,7 @@ private:
 		auto o1 = m_opnds.top();
 		m_opnds.pop();
 		Variable n;
-		n.bval = o1.bval < o2.bval;
+		n.bval = o1.ival < o2.ival;
 		n.type = Variable::BOOL;
 		m_opnds.push(n);
 	}
