@@ -1,0 +1,15 @@
+var int sum=0;
+function int(int) add=i:
+{
+	sum=sum+i;
+	if i<100 then
+		add(i+1);
+	return 0;
+}
+function int(int) main=x:
+{
+	add(0);
+	print sum;
+	return 0;
+}
+

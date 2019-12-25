@@ -23,8 +23,8 @@ int main()
 	//const char* file = "C:\\Users\\wen\\Desktop\\tcc\\main.txt";
 	//const char* asmfile = "C:\\Users\\wen\\Desktop\\tcc\\main.asm";
 	//const char* file = "C:\\Users\\wen\\Desktop\\DeclarationTestCases.txt";
-	const char* file = "sum0-100.txt";
-	const char* asmfile = "sum0-100.asm";
+	const char* file = "main.txt";
+	const char* asmfile = "main.asm";
 	
 
 

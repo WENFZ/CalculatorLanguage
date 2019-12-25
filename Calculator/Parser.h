@@ -66,17 +66,12 @@ public:
 	Expression* parseFunctionCall();
 	Expression* parseObject();
 
-	
 	Declaration* parseVariableDeclaration();
 	Declaration* parseFunctionDeclaration();
 	void parseFunctionBody();
 	
-	
-
 	Type* parseBaseType();
 	Type* parseFunctionType();
-
-	
 
 };
 

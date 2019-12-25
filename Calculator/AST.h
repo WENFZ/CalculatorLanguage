@@ -64,10 +64,13 @@ class Expression :public ASTNode
 {
 public:
 	virtual Type* getType() { return nullptr; }
+	virtual bool isAddress() { return m_isAddress; }
+	virtual void setIsAddress(bool is) { m_isAddress = is; }
 	virtual Object* toObject()
 	{
 		return nullptr;
 	}
+	bool m_isAddress;
 };
 class IConstance :public Expression
 {

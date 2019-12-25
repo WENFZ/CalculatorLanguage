@@ -235,7 +235,7 @@ public:
 	}
 	void executeInstructions()
 	{
-		m_pc = m_lable2addr[0];
+		//m_pc = m_lable2addr[0];
 		mainloop();
 	}
 private:
@@ -256,7 +256,7 @@ private:
 	}
 	Variable getGlobalVariable(int idx)
 	{
-		/*cout << "fetch global variable at " << idx << " its value is ";
+		cout << "fetch global variable at " << idx << " its value is ";
 		if (m_globalVariables[idx].type == Variable::BOOL)
 		{
 			cout << m_globalVariables[idx].bval ? "true\n" : "false\n";
@@ -268,12 +268,12 @@ private:
 		if (m_globalVariables[idx].type == Variable::FLOAT)
 		{
 			cout << m_globalVariables[idx].bval << endl;
-		}*/
+		}
 		return m_globalVariables[idx];
 	}
 	void setGlobalVariable(int idx, Variable var)
 	{
-		/*cout << "set global variable at " << idx << " to ";
+		cout << "set global variable at " << idx << " to ";
 		if (var.type == Variable::BOOL)
 		{
 			cout << var.bval ? "true\n" : "false\n";
@@ -285,12 +285,12 @@ private:
 		if (var.type == Variable::FLOAT)
 		{
 			cout << var.bval << endl;
-		}*/
+		}
 		m_globalVariables[idx] = var;
 	}
 	Variable getLocalVariable(int idx)
 	{
-		/*cout << "fetch local variable at " << idx << " its value is ";
+		cout << "fetch local variable at " << idx << " its value is ";
 		if (m_memory[idx].type == Variable::BOOL)
 		{
 			cout << m_memory[idx].bval ? "true\n" : "false\n";
@@ -302,12 +302,12 @@ private:
 		if (m_memory[idx].type == Variable::FLOAT)
 		{
 			cout << m_memory[idx].bval << endl;
-		}*/
+		}
 		return m_memory[idx];
 	}
 	void setLocalVariable(int idx, Variable var)
 	{
-		/*cout << "set local variable at " << idx << " to ";
+		cout << "set local variable at " << idx << " to ";
 		if (var.type == Variable::BOOL)
 		{
 			cout << var.bval ? "true\n" : "false\n";
@@ -319,7 +319,7 @@ private:
 		if (var.type == Variable::FLOAT)
 		{
 			cout << var.bval << endl;
-		}*/
+		}
 		m_memory[idx] = var;
 	}
 	map<int, int> m_lable2addr;

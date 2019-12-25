@@ -36,9 +36,6 @@
     <ClCompile Include="Scope.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="DebugHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CodeGenerator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -69,9 +66,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Scope.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CodeGenerator.h">

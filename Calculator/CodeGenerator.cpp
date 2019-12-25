@@ -21,27 +21,38 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 
 	//	ASSIGN = Token::ASSIGN,			// =
 	output << "# bianry expression:" + exp->name;
-	output << "# calculate opnd1";
-	exp->m_opnd1->accept(this);
-	output << "# calculate opnd2";
-	exp->m_opnd2->accept(this);
-	output << "# calculate result";
+	
 	int optr = exp->m_optr;
 	switch (optr)
 	{
 	case BinaryExpression::OR:
 	{
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
 		output << is.Or();
 		break;
 	}
 	case BinaryExpression::AND:
 	{
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
 		output << is.And();
 		break;
 	}
 	case BinaryExpression::EQ:
 	case BinaryExpression::NE:
 	{
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
 		if (exp->getType()->toInt() != nullptr)
 			output << is.Eqi();
 		else if (exp->getType()->toFloat() != nullptr)
@@ -58,9 +69,15 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 	case BinaryExpression::GT:
 	case BinaryExpression::LE:
 	{
-		if (exp->getType()->toInt() != nullptr)
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
+		auto opndType = exp->m_opnd1->getType();
+		if (opndType->toInt() != nullptr)
 			output << is.Gti();
-		else if (exp->getType()->toFloat() != nullptr)
+		else if (opndType->toFloat() != nullptr)
 			output << is.Gtf();
 		else
 			assert(0);
@@ -72,9 +89,16 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 	case BinaryExpression::LT:
 	case BinaryExpression::GE:
 	{
-		if (exp->getType()->toInt() != nullptr)
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
+		auto opndType = exp->m_opnd1->getType();
+
+		if (opndType->toInt() != nullptr)
 			output << is.Lti();
-		else if (exp->getType()->toFloat() != nullptr)
+		else if (opndType->toFloat() != nullptr)
 			output << is.Ltf();
 		else
 			assert(0);
@@ -85,9 +109,15 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 	}
 	case BinaryExpression::ADD:
 	{
-		if (exp->getType()->toInt() != nullptr)
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
+		auto opndType = exp->m_opnd1->getType();
+		if (opndType->toInt() != nullptr)
 			output << is.Addi();
-		else if (exp->getType()->toFloat() != nullptr)
+		else if (opndType->toFloat() != nullptr)
 			output << is.Addf();
 		else
 			assert(0);
@@ -95,9 +125,15 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 	}
 	case BinaryExpression::SUB:
 	{
-		if (exp->getType()->toInt() != nullptr)
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
+		auto opndType = exp->m_opnd1->getType();
+		if (opndType->toInt() != nullptr)
 			output << is.Addi();
-		else if (exp->getType()->toFloat() != nullptr)
+		else if (opndType->toFloat() != nullptr)
 			output << is.Addf();
 		else
 			assert(0);
@@ -105,9 +141,15 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 	}
 	case BinaryExpression::MUL:
 	{
-		if (exp->getType()->toInt() != nullptr)
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
+		auto opndType = exp->m_opnd1->getType();
+		if (opndType->toInt() != nullptr)
 			output << is.Addi();
-		else if (exp->getType()->toFloat() != nullptr)
+		else if (opndType->toFloat() != nullptr)
 			output << is.Addf();
 		else
 			assert(0);
@@ -115,9 +157,15 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 	}
 	case BinaryExpression::DIV:
 	{
-		if (exp->getType()->toInt() != nullptr)
+		output << "# calculate opnd1";
+		exp->m_opnd1->accept(this);
+		output << "# calculate opnd2";
+		exp->m_opnd2->accept(this);
+		output << "# calculate result";
+		auto opndType = exp->m_opnd1->getType();
+		if (opndType->toInt() != nullptr)
 			output << is.Addi();
-		else if (exp->getType()->toFloat() != nullptr)
+		else if (opndType->toFloat() != nullptr)
 			output << is.Addf();
 		else
 			assert(0);
@@ -125,12 +173,20 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 	}
 	case BinaryExpression::ASSIGN:
 	{
-		exp->m_opnd2->accept(this);// rval
-		exp->m_opnd1->accept(this);// addr
-		if (m_localVariables->hasVariable(m_lastVisitedVar))
+		output << "# calculate value";
+		exp->m_opnd2->accept(this);
+		output << "# calculate address";
+		exp->m_opnd1 ->toObject()->m_inLeft = true;
+		exp->m_opnd1->accept(this);
+		
+		output << "# assignment operation";
+		//exp->m_opnd2->accept(this);// rval
+		//exp->m_opnd1->accept(this);// addr
+		if (m_localVariables->hasVariable(exp->m_opnd1->toObject()->m_id))
 			output << is.Wtsm();
 		else
 			output << is.Wtgm();
+		break;
 	}
 	default:
 		assert(0);
@@ -364,6 +420,9 @@ void CodeGenerator::visitFunctionDeclaration(FunctionDeclaration* decl)
 	}
 	if (decl->m_body != nullptr)
 	{
+		auto endoffunction = newLable();
+		output << is.Pushi(endoffunction);
+		output << is.Jl();
 		output << "# global function declaration:";
 		output << "# "+decl->name;
 		m_funAddr = getFunctionAddr(decl->m_id);
@@ -395,6 +454,8 @@ void CodeGenerator::visitFunctionDeclaration(FunctionDeclaration* decl)
 		output << "# codes for function body";
 		decl->m_body->accept(this);
 		output << "# end of function: " + decl->name;
+		output << is.Lable(endoffunction);
+
 		delete m_localVariables;
 		m_localVariables = old;
 	}
@@ -422,6 +483,7 @@ void CodeGenerator::visitTranslationUnit(TranslationUnit* unit)
 			output << is.Pushi(m_gloablVariables->getOffsetFromCurFP(s->toVariableDeclaration()->m_id));
 			output << is.Wtgm();
 			output << is.Pop();
+			
 			output << "# end of global variable declaration: " + s->name;
 		}
 		else
@@ -429,4 +491,7 @@ void CodeGenerator::visitTranslationUnit(TranslationUnit* unit)
 			s->accept(this);
 		}
 	}
+	output << is.Pushi(0);// main function
+	output << is.Jl();
+	output << is.Halt();
 }

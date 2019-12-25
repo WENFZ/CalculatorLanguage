@@ -104,7 +104,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
@@ -156,7 +156,6 @@
     <ClCompile Include="CodeGenerator.cpp" />
     <ClCompile Include="CodeOutput.cpp" />
     <ClCompile Include="CSubset.cpp" />
-    <ClCompile Include="DebugHelper.cpp" />
     <ClCompile Include="InstructionSet.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="Parser.cpp" />
@@ -168,7 +167,6 @@
     <ClInclude Include="AST.h" />
     <ClInclude Include="CodeGenerator.h" />
     <ClInclude Include="CodeOutput.h" />
-    <ClInclude Include="DebugHelper.h" />
     <ClInclude Include="InstructionSet.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="Parser.h" />
