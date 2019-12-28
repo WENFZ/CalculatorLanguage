@@ -14,6 +14,8 @@
 + void，class，arrary，object reference。  
 + 自动内存管理。  
 + gc。  
++ 更好的错误提醒和恢复
++ better error detection and recovery
 ## References
 [1]wgtcc https://github.com/wgtdkp/wgtcc  
 [2]c11 Committee Draft  
