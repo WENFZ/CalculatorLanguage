@@ -34,10 +34,6 @@ do\
 	}\
 }while(0);
 
-
-
-
-
 Parser::Parser(std::list<Token*> tokens)
 {
 	m_ts = tokens;
@@ -72,6 +68,15 @@ bool Parser::test(int type)
 int Parser::next()
 {
 	return (*(++m_pos))->m_type;
+}
+bool attempt(int type)
+{
+	if (peekTokenType() == type)
+	{
+		next();
+		return true;
+	}
+	return false;
 }
 void Parser::expect(int type)
 {
@@ -321,7 +326,7 @@ Declaration* Parser::parseFunctionDeclaration()
 		if (funtype == nullptr)
 		{
 			error("identifier was not function but is declared as function now");
-			// 将旧的类型替换成新的类型
+			// 灏嗘棫鐨勭被鍨嬫浛鎹㈡垚鏂扮殑绫诲瀷
 			//m_scope->modifiedIdentifier(val,)
 			// todo
 			assert(0);
@@ -336,7 +341,7 @@ Declaration* Parser::parseFunctionDeclaration()
 	}
 	else
 	{
-		// 首次出现
+		// 棣栨鍑虹幇
 		id = Identifier::newInstance(type, funname);
 		m_scope->addIdentifier(funname, id);
 	}
@@ -614,7 +619,7 @@ Expression* Parser::parseFunctionCall()
 	assert(types != nullptr);
 	next();
 
-	// 1、parse params
+	// 1銆乸arse params
 	expect('(');
 	vector<Expression*> params;
 	while (!attempt(')'))
@@ -625,7 +630,7 @@ Expression* Parser::parseFunctionCall()
 			expect(',');
 	}
 
-	// 2、check types
+	// 2銆乧heck types
 	auto argtypes = types->getArgTypes();
 	if (params.size() != argtypes.size())
 	{
