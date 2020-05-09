@@ -22,15 +22,7 @@ public:
 
 	int peekTokenType();
 	std::string peekTokenValue();
-	bool attempt(int type)
-	{
-		if (peekTokenType() == type)
-		{
-			next();
-			return true;
-		}
-		return false;
-	}
+	bool attempt(int type);
 	bool test(int type);
 	int next();
 	void expect(int type);
