@@ -53,5 +53,5 @@
 	|<function call>
 	|<object>
 <function call>::=<function name>(<expression list>)
-<expression list>::=<expression>|<expression>,><expression list>
+<expression list>::=<expression>|<expression>,<expression list>
 <object>::=<identifier>
