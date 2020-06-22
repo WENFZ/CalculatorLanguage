@@ -109,5 +109,5 @@ public:
 	bool timeToGC();
 	void GC();
 	void mark();
-	void clear();
+	void sweep();
 };

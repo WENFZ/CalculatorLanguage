@@ -75,7 +75,7 @@ bool GCMemoryManager::timeToGC()
 void GCMemoryManager::GC()
 {
 	mark();
-	clear();
+	sweep();
 }
 
 void GCMemoryManager::mark()
@@ -104,7 +104,7 @@ void GCMemoryManager::mark()
 	}
 }
 
-void GCMemoryManager::clear()
+void GCMemoryManager::sweep()
 {
 	int cnt = 0;
 	for (auto it = m_objs.begin(); it != m_objs.end();)
