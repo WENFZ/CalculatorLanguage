@@ -32,7 +32,7 @@ GTF,
 LTI,<
 LTF,
 ADDI,+
-ADDF,-
+ADDF,+
 SUBI,-
 SUBF,-
 MULI,*
