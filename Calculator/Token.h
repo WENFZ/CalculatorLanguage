@@ -35,11 +35,13 @@ public:
 		INT,
 		FLOAT,
 		BOOL,
+		STRUCT,
+		NEW,
 
 		AND ,
 		OR ,
 		NOT ,
-
+		DOT,
 
 		IF,
 		THEN,

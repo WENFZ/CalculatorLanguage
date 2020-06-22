@@ -1,5 +1,7 @@
 #pragma once
 class TranslationUnit;
+class NewExpression;
+class MemberAccess;
 class BinaryExpression;
 class UnaryExpression;
 class IConstance;
@@ -11,6 +13,7 @@ class PrintStatement;
 class CompoundStatement;
 class VariableDeclaration;
 class FunctionDeclaration;
+class StructureDeclaration;
 class ExpressionStatement;
 class ReturnStatement;
 class WhileStatement;
@@ -23,14 +26,15 @@ public:
 	virtual ~Visitor() {}
 	virtual void visitTranslationUnit(TranslationUnit* unit) = 0;
 
-
+	virtual void visitMemberAccessExpression(MemberAccess* exp) = 0;
+	virtual void visitNewExpression(NewExpression* exp) = 0;
 	virtual void visitBinaryExpression(BinaryExpression* exp) = 0;
 	virtual void visitUnaryExpression(UnaryExpression* exp) = 0;
 	virtual void visitFunctionCall(FunctionCall* exp) = 0;
 	virtual void visitIConstance(IConstance* exp) = 0;
 	virtual void visitFConstance(FConstance* exp) = 0;
 	virtual void visitBConstance(BConstance* exp) = 0;
-
+	
 	virtual void visitObject(Object* obj) = 0;
 
 
@@ -47,6 +51,7 @@ public:
 
 	virtual void visitVariableDeclaration(VariableDeclaration* decl) = 0;
 	virtual void visitFunctionDeclaration(FunctionDeclaration* decl) = 0;
+	virtual void visitStructureDeclaration(StructureDeclaration* decl) = 0;
 
 	
 

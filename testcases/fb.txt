@@ -1,0 +1,13 @@
+var int x=3;
+function int(int) f=x:
+if x<2 then
+return x;
+else
+return f(x-1)+f(x-2);
+
+function int(int) main=param:
+{
+var int x=10;
+print f(x);
+return 0;
+}

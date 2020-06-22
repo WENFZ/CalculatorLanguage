@@ -155,9 +155,9 @@
     <ClCompile Include="AST.cpp" />
     <ClCompile Include="CodeGenerator.cpp" />
     <ClCompile Include="CodeOutput.cpp" />
-    <ClCompile Include="CSubset.cpp" />
     <ClCompile Include="InstructionSet.cpp" />
     <ClCompile Include="Lexer.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Scope.cpp" />
     <ClCompile Include="Text.cpp" />

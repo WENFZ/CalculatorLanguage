@@ -8,6 +8,7 @@
 #include "InstructionSet.h"
 
 class Identifier;
+class Structure;
 class VariableCnter
 {
 public:
@@ -87,8 +88,16 @@ public:
 	virtual void visitTranslationUnit(TranslationUnit* unit);
 
 private:
-	// lable manager
-	int newLable()
+	// type manager
+	int newType()
+	{
+		static int i = 1;
+		return i++;
+	}
+	std::map<Structure*, int> m_typeids;
+private:
+	// label manager
+	int newLabel()
 	{
 		static int i = 1;
 		return i++;
@@ -105,17 +114,12 @@ private:
 private:
 	// function manager
 	void addFunction(Identifier* funname);
-	int getFunctionAddr(Identifier* funname)
-	{
-		if (m_funAddrs.find(funname) != m_funAddrs.end())
-			return m_funAddrs[funname];
-		return -1;
-	}
+	int getFunctionAddr(Identifier* funname);
 	std::map<Identifier*, int> m_funAddrs;
 	int m_funAddr;
 private:
-	int m_testLable;
-	int m_endLable;
+	int m_testLabel;
+	int m_endLabel;
 
 private:
 
@@ -123,7 +127,8 @@ private:
 
 	InstructionSet is;
 
-
+	virtual void visitMemberAccessExpression(MemberAccess* exp);
+	virtual void visitNewExpression(NewExpression* exp);
 	virtual void visitBinaryExpression(BinaryExpression* exp);
 	virtual void visitUnaryExpression(UnaryExpression* exp);
 	virtual void visitFunctionCall(FunctionCall* exp);
@@ -143,6 +148,7 @@ private:
 
 	virtual void visitVariableDeclaration(VariableDeclaration* decl);
 	virtual void visitFunctionDeclaration(FunctionDeclaration* decl);
+	virtual void visitStructureDeclaration(StructureDeclaration* decl);
 
 	
 };

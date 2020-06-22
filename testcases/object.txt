@@ -1,0 +1,29 @@
+
+struct MyStructB;
+struct MyStruct{
+	MyStructB bb; 
+	int a;
+	float b;
+};
+
+struct MyStructB{
+	int c;
+};
+
+MyStruct o = new MyStruct;
+
+o.a = 1
+print o.a
+o.bb =new MyStructB
+o.bb.c =2
+o.bb = new MyStructB
+o.bb = new MyStructB
+o.bb.c =1
+print o.bb.c
+
+function int(int) main=x:
+{
+	return 0;
+}
+
+

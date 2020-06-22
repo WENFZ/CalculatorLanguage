@@ -1,6 +1,24 @@
 #include "CodeGenerator.h"
 #include "AST.h"
 
+void CodeGenerator::visitMemberAccessExpression(MemberAccess* exp)
+{
+	exp->m_obj->accept(this);
+	auto member = exp->m_member;
+	output << is.Ma(exp->m_obj->getType()->toStructure()->getMemberIndex(member));
+	if (!exp->m_inLeft) 
+	{
+		output << is.Rfhm();
+	}
+}
+
+void CodeGenerator::visitNewExpression(NewExpression* exp)
+{
+	auto type = exp->getType()->toStructure();
+	auto id = m_typeids.at(type);
+	output << is.New(id);
+}
+
 void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 {
 	//  OR = Token::OR,
@@ -178,16 +196,22 @@ void CodeGenerator::visitBinaryExpression(BinaryExpression* exp)
 		output << "# calculate value";
 		exp->m_opnd2->accept(this);
 		output << "# calculate address";
-		exp->m_opnd1 ->toObject()->m_inLeft = true;
 		exp->m_opnd1->accept(this);
 		
 		output << "# assignment operation";
 		//exp->m_opnd2->accept(this);// rval
 		//exp->m_opnd1->accept(this);// addr
-		if (m_localVariables->hasVariable(exp->m_opnd1->toObject()->m_id))
-			output << is.Wtsm();
+		if (exp->m_opnd1->toObject() != nullptr)
+		{
+			if (m_localVariables->hasVariable(exp->m_opnd1->toObject()->m_id))
+				output << is.Wtsm();
+			else
+				output << is.Wtgm();
+		}
 		else
-			output << is.Wtgm();
+		{
+			output << is.Wthm();
+		}
 		break;
 	}
 	default:
@@ -304,7 +328,7 @@ void CodeGenerator::visitObject(Object* obj)
 		output << "# local object access: " + obj->name;
 		int offset = m_localVariables->getOffsetFromCurFP(m_lastVisitedVar);
 		output << is.Pushi(offset);
-		if (!obj->inLeft())
+		if (!obj->m_inLeft)
 		{
 			output << is.Rfsm();
 		}
@@ -315,7 +339,7 @@ void CodeGenerator::visitObject(Object* obj)
 		output << "# global object access: " + obj->name;
 		int offset = m_gloablVariables->getOffsetFromCurFP(m_lastVisitedVar);
 		output << is.Pushi(offset);
-		if (!obj->inLeft())
+		if (!obj->m_inLeft)
 			output << is.Rfgm();
 		output << "# end of global object access: " + obj->name;
 	}
@@ -330,8 +354,8 @@ void CodeGenerator::visitIfStatement(IfStatement* stmt)
 	output << "# if statement:";
 	output << "# calculate condition value:";
 	stmt->m_condition->accept(this);
-	auto elseLable = newLable();
-	auto endif = newLable();
+	auto elseLable = newLabel();
+	auto endif = newLabel();
 	output << "# test condition";
 	output << is.Jiff(elseLable);
 	output << "# then statement";
@@ -340,10 +364,10 @@ void CodeGenerator::visitIfStatement(IfStatement* stmt)
 	output << is.Pushi(endif);
 	output << is.Jl();
 	output << "# else statement";
-	output << is.Lable(elseLable);
+	output << is.Label(elseLable);
 	if (stmt->m_elseStatement != nullptr)
 		stmt->m_elseStatement->accept(this);
-	output << is.Lable(endif);
+	output << is.Label(endif);
 	output << "# end of if statement";
 	output << "}";
 
@@ -438,28 +462,28 @@ void CodeGenerator::visitWhileStatement(WhileStatement* stmt)
 {
 	m_whileScope = m_localVariables;
 
-	int oldTest = m_testLable;
-	int oldEnd = m_endLable;
-	m_testLable = newLable();
-	m_endLable = newLable();
+	int oldTest = m_testLabel;
+	int oldEnd = m_endLabel;
+	m_testLabel = newLabel();
+	m_endLabel = newLabel();
 	output << "{";
 	output << "# while statement:";
 	
-	output << is.Lable(m_testLable);
+	output << is.Label(m_testLabel);
 	output << "# while condition:";
 	stmt->m_condition->accept(this);
-	output << is.Jiff(m_endLable);
+	output << is.Jiff(m_endLabel);
 	output << "# end of while condition";
 	output << "# while body";
 	stmt->m_body->accept(this);
 	output << "# end of while body";
-	output << is.Pushi(m_testLable);
+	output << is.Pushi(m_testLabel);
 	output << is.Jl();
-	output << is.Lable(m_endLable);
+	output << is.Label(m_endLabel);
 	output << "# end of while statement";
 	output << "}";
-	m_testLable = oldTest;
-	m_endLable = oldEnd;
+	m_testLabel = oldTest;
+	m_endLabel = oldEnd;
 	m_whileScope = nullptr;
 }
 
@@ -467,7 +491,7 @@ void CodeGenerator::visitBreakStatement(BreakStatement* stmt)
 {
 	output << is.Pushi(m_localVariables->getScopeChainVarNum(m_whileScope));
 	output << is.DecFP();
-	output << is.Pushi(m_endLable);
+	output << is.Pushi(m_endLabel);
 	output << is.Jl();
 }
 
@@ -475,7 +499,7 @@ void CodeGenerator::visitContinueStatement(ContinueStatement* stmt)
 {
 	output << is.Pushi(m_localVariables->getScopeChainVarNum(m_whileScope));
 	output << is.DecFP();
-	output << is.Pushi(m_testLable);
+	output << is.Pushi(m_testLabel);
 	output << is.Jl();
 }
 
@@ -506,14 +530,14 @@ void CodeGenerator::visitFunctionDeclaration(FunctionDeclaration* decl)
 	{
 		output << "{";
 
-		auto endoffunction = newLable();
+		auto endoffunction = newLabel();
 		output << is.Pushi(endoffunction);
 		output << is.Jl();
 		output << "# global function declaration:";
 		output << "# "+decl->name;
 		m_funAddr = getFunctionAddr(decl->m_id);
 		output << "# function address";
-		output << is.Lable(m_funAddr);
+		output << is.Label(m_funAddr);
 		// 1、将操作数栈上的返回地址保存到栈内存
 		output << "# save return address";
 		output << is.Pushi(0);
@@ -540,7 +564,7 @@ void CodeGenerator::visitFunctionDeclaration(FunctionDeclaration* decl)
 		output << "# codes for function body";
 		decl->m_body->accept(this);
 		output << "# end of function: " + decl->name;
-		output << is.Lable(endoffunction);
+		output << is.Label(endoffunction);
 
 		delete m_localVariables;
 		m_localVariables = old;
@@ -550,12 +574,67 @@ void CodeGenerator::visitFunctionDeclaration(FunctionDeclaration* decl)
 	
 }
 
+void CodeGenerator::visitStructureDeclaration(StructureDeclaration* decl)
+{
+	auto type = decl->m_type->toStructure();
+
+	if (m_typeids.find(type) != m_typeids.end())
+	{
+		// we has declarated this type
+		return;
+	}
+
+
+	int endLabel = newLabel();
+	int id = newType();
+	output << is.Pushi(endLabel);
+	output << is.Jl();
+
+	output << "# type  info begin";
+	output << is.Btd(id);
+	m_typeids.insert(std::make_pair(type, id));
+	auto members = type->getMembers();
+	for (auto& member : members) {
+		auto memberType = member.second;
+		if (memberType->toBool()!=nullptr)
+		{
+			output << is.Bool();
+			continue;
+		}
+		if (memberType->toFloat() != nullptr)
+		{
+			output << is.Float();
+			continue;
+		}
+		if (memberType->toInt() != nullptr)
+		{
+			output << is.Int();
+			continue;
+		}
+		if (memberType->toStructure() != nullptr)
+		{
+			output << is.Structure();
+			continue;
+		}
+	}
+	output << is.Etd(id);
+	output << "# type info end";
+	output << is.Label(endLabel);
+}
+
 void CodeGenerator::addFunction(Identifier* funname)
 {
 	if (funname->name == "main")
 		m_funAddrs.insert(std::make_pair(funname, 0));
 	else
-		m_funAddrs.insert(std::make_pair(funname, newLable()));
+		m_funAddrs.insert(std::make_pair(funname, newLabel()));
+}
+
+inline int CodeGenerator::getFunctionAddr(Identifier* funname)
+{
+	if (m_funAddrs.find(funname) != m_funAddrs.end())
+		return m_funAddrs[funname];
+	return -1;
 }
 
 void CodeGenerator::visitTranslationUnit(TranslationUnit* unit)

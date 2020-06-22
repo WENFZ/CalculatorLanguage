@@ -68,12 +68,14 @@ public:
 	Expression* parseAssignmentExpression();
 	Expression* parseBinaryExpression(int level=0);
 	Expression* parseUnaryExpression();
+	Expression* parseMemberAccessExpression();
 	Expression* parsePrimaryExpression();
 	Expression* parseFunctionCall();
 	Expression* parseObject();
 
 	Declaration* parseVariableDeclaration();
 	Declaration* parseFunctionDeclaration();
+	Declaration* parseStructDeclaration();
 	void parseFunctionBody();
 	
 	Type* parseBaseType();
