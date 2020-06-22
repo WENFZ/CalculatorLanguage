@@ -34,6 +34,10 @@ do\
 	}\
 }while(0);
 
+
+
+
+
 Parser::Parser(std::list<Token*> tokens)
 {
 	m_ts = tokens;
@@ -68,15 +72,6 @@ bool Parser::test(int type)
 int Parser::next()
 {
 	return (*(++m_pos))->m_type;
-}
-bool attempt(int type)
-{
-	if (peekTokenType() == type)
-	{
-		next();
-		return true;
-	}
-	return false;
 }
 void Parser::expect(int type)
 {
@@ -117,11 +112,12 @@ void Parser::leaveScope()
 	delete m_scope;
 	m_scope = outer;
 }
-
+TranslationUnit* unit_debug;
 TranslationUnit* Parser::parseTranslationUnit()
 {
 	enterNewScope(Scope::UNIT);
 	auto unit = new TranslationUnit();
+	unit_debug = unit;
 	while (peekTokenType() != Token::END)
 	{
 		auto s = parseStatement();
@@ -156,7 +152,17 @@ Statement* Parser::parseStatement()
 		return parseVariableDeclaration();
 	case Token::FUNCTION:
 		return parseFunctionDeclaration();
+	case Token::STRUCT:
+		return parseStructDeclaration();
 	default:
+		if (test(Token::IDENTIFIER))
+		{
+			auto id = m_scope->getIdentifier(peekTokenValue());
+			if (id->m_isType)
+			{
+				return parseVariableDeclaration();
+			}
+		}
 		return parseExpressionStatement();
 	}
 }
@@ -264,22 +270,7 @@ Statement* Parser::parseContinueStatement()
 
 Declaration* Parser::parseVariableDeclaration()
 {
-	static std::map<int, Type*> types =
-	{
-		{Token::INT,Int::newInstance()},
-		{Token::FLOAT,Float::newInstance()},
-		{Token::BOOL,Bool::newInstance()},
-	};
-	Type* type = Int::newInstance();
-	if (types.find(peekTokenType()) != types.end())
-	{
-		type = types[peekTokenType()];
-		next();
-	}
-	else
-	{
-		error("unsupported type in variable declaration");
-	}
+	Type* type = parseBaseType();
 	Identifier* id = nullptr;
 	if (test(Token::IDENTIFIER))
 	{
@@ -326,7 +317,7 @@ Declaration* Parser::parseFunctionDeclaration()
 		if (funtype == nullptr)
 		{
 			error("identifier was not function but is declared as function now");
-			// 灏嗘棫鐨勭被鍨嬫浛鎹㈡垚鏂扮殑绫诲瀷
+			// 将旧的类型替换成新的类型
 			//m_scope->modifiedIdentifier(val,)
 			// todo
 			assert(0);
@@ -341,7 +332,7 @@ Declaration* Parser::parseFunctionDeclaration()
 	}
 	else
 	{
-		// 棣栨鍑虹幇
+		// 首次出现
 		id = Identifier::newInstance(type, funname);
 		m_scope->addIdentifier(funname, id);
 	}
@@ -353,6 +344,49 @@ Declaration* Parser::parseFunctionDeclaration()
 	}
 	m_funDef = nullptr;
 	return fundef;
+}
+Declaration* Parser::parseStructDeclaration()
+{
+	expect(Token::STRUCT);
+	auto name = peekTokenValue();
+	expect(Token::IDENTIFIER);
+	Identifier* id = nullptr;
+	if (m_scope->hasIdentifier(name)) 
+	{
+		id = m_scope->getIdentifier(name);
+		if (id->getType()->toStructure() == nullptr) 
+		{
+			error("the identifier was declarated as " + id->getType()->name + " but now is declarated as structure");
+			// TODO:replace the old type of identifier with the new one
+			assert(0);
+		}
+	}
+	else 
+	{
+		auto type = Structure::newInstance();
+		id = Identifier::newInstance(type, name);
+		id->m_isType = true;
+		m_scope->addIdentifier(name, id);
+	}
+	auto type = id->getType()->toStructure();
+	if (type->m_finished)
+	{
+		error("structure " + name + " has been finished");
+	}
+	if (attempt('{')) 
+	{
+		while(!attempt('}'))
+		{
+			auto memberType = parseBaseType();
+			auto memberName = peekTokenValue();
+			expect(Token::IDENTIFIER);
+			type->addMember(memberType, memberName);
+			expect(';');
+		}
+		type->m_finished = true;
+	}
+	expect(';');
+	return new StructureDeclaration(type);
 }
 void Parser::parseFunctionBody()
 {
@@ -417,10 +451,11 @@ Expression* Parser::parseAssignmentExpression()
 	if (attempt('='))
 	{
 		auto rhs = parseAssignmentExpression();
-		if (lhs->toObject()==nullptr)
+		if(!lhs->m_canBeLval)
 		{
 			error(lhs->name + " is not a left value\n");
 		}
+		lhs->m_inLeft = true;
 		assert(rhs != nullptr);
 		if (lhs->getType() != rhs->getType())
 		{
@@ -554,9 +589,31 @@ Expression* Parser::parseUnaryExpression()
 			}
 		}
 	}
-	auto exp=parsePrimaryExpression();
+	auto exp=parseMemberAccessExpression();
 	cout << "primary expression " + exp->name << " parsed\n";
 	return exp;
+}
+
+Expression* Parser::parseMemberAccessExpression() 
+{
+	auto lhs = parsePrimaryExpression();
+	while (attempt(Token::DOT))
+	{
+		auto type = lhs->getType()->toStructure();
+		if (type == nullptr)
+		{
+			error("left hand side of memeber access expression is not a object");
+			return lhs;
+		}
+		auto memberName = peekTokenValue();
+		expect(Token::IDENTIFIER);
+		if (!type->hasMember(memberName))
+		{
+			error("the structure does not have member " + memberName);
+		}
+		lhs = new MemberAccess(lhs, memberName);
+	}
+	return lhs;
 }
 
 Expression* Parser::parsePrimaryExpression()
@@ -587,6 +644,18 @@ Expression* Parser::parsePrimaryExpression()
 		auto val = peekTokenValue();
 		next();
 		return new IConstance(atoi(val.c_str()));
+	}
+	if (attempt(Token::NEW)) {
+		auto typeName = peekTokenValue();
+		expect(Token::IDENTIFIER);
+		auto id = m_scope->getIdentifier(typeName);
+		if (id == nullptr || id->getType()->toStructure()==nullptr)
+		{
+			error("a declarated type is needed in new expression");
+			return nullptr;
+		}
+		auto type = id->getType()->toStructure();
+		return new NewExpression(type);
 	}
 	if (test(Token::IDENTIFIER))
 	{
@@ -619,7 +688,7 @@ Expression* Parser::parseFunctionCall()
 	assert(types != nullptr);
 	next();
 
-	// 1銆乸arse params
+	// 1、parse params
 	expect('(');
 	vector<Expression*> params;
 	while (!attempt(')'))
@@ -630,7 +699,7 @@ Expression* Parser::parseFunctionCall()
 			expect(',');
 	}
 
-	// 2銆乧heck types
+	// 2、check types
 	auto argtypes = types->getArgTypes();
 	if (params.size() != argtypes.size())
 	{
@@ -668,11 +737,17 @@ Type* Parser::parseBaseType()
 		{Token::FLOAT,Float::newInstance()},
 		{Token::BOOL,Bool::newInstance()},
 	};
-	Type* type = Int::newInstance();
+	Type* type = nullptr;
+	auto name = peekTokenValue();
 	if (types.find(peekTokenType()) != types.end())
 	{
 		type = types[peekTokenType()];
 		next();
+	}
+	else if (attempt(Token::IDENTIFIER)) 
+	{
+		auto id = m_scope->getIdentifier(name);
+		return id->getType();
 	}
 	else
 	{

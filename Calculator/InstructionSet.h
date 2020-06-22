@@ -3,6 +3,38 @@
 class InstructionSet
 {
 public:
+	std::string Btd(int id)
+	{
+		return "btd "+ std::to_string(id);
+	}
+	std::string Bool()
+	{
+		return "bool";
+	}
+	std::string Int()
+	{
+		return "int";
+	}
+	std::string Float()
+	{
+		return "float";
+	}
+	std::string Structure()
+	{
+		return "structure";
+	}
+	std::string Etd(int id)
+	{
+		return "etd "+ std::to_string(id);
+	}
+	std::string New(int id)
+	{
+		return "new " + std::to_string(id);
+	}
+	std::string Ma(int idx)
+	{
+		return "ma " + std::to_string(idx);
+	}
 	std::string Halt()
 	{
 		return "halt";
@@ -11,7 +43,7 @@ public:
 	{
 		return "jal " + std::to_string(lable);
 	}
-	std::string Lable(int i)
+	std::string Label(int i)
 	{
 		return "lable " + std::to_string(i);
 	}
@@ -161,6 +193,14 @@ public:
 	std::string Divf()
 	{
 		return "divf";
+	}
+	std::string Rfhm()
+	{
+		return "rfhm";
+	}
+	std::string Wthm()
+	{
+		return "wrhm";
 	}
 	std::string Rfsm()
 	{

@@ -22,7 +22,15 @@ public:
 
 	int peekTokenType();
 	std::string peekTokenValue();
-	bool attempt(int type);
+	bool attempt(int type)
+	{
+		if (peekTokenType() == type)
+		{
+			next();
+			return true;
+		}
+		return false;
+	}
 	bool test(int type);
 	int next();
 	void expect(int type);
@@ -60,12 +68,14 @@ public:
 	Expression* parseAssignmentExpression();
 	Expression* parseBinaryExpression(int level=0);
 	Expression* parseUnaryExpression();
+	Expression* parseMemberAccessExpression();
 	Expression* parsePrimaryExpression();
 	Expression* parseFunctionCall();
 	Expression* parseObject();
 
 	Declaration* parseVariableDeclaration();
 	Declaration* parseFunctionDeclaration();
+	Declaration* parseStructDeclaration();
 	void parseFunctionBody();
 	
 	Type* parseBaseType();

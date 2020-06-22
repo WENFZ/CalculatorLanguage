@@ -18,6 +18,8 @@ static map<string, int>keywords =
 	{"bool",Token::BOOL},
 	{"true",Token::TRUE},
 	{"false",Token::FALSE},
+	{"struct",Token::STRUCT},
+	{"new",Token::NEW},
 
 	{"function",Token::FUNCTION},
 
@@ -115,6 +117,7 @@ Token* Lexer::readToken()
 	{
 	case 0:
 		return new Token(Token::END, m_text->m_row, m_text->m_col);
+		
 	case '(':
 	case ')':
 	case '{':
@@ -152,6 +155,9 @@ Token* Lexer::readToken()
 			return new Token(Token::LE, m_text->m_row, m_text->m_col, "<=");
 		else
 			return new Token('<', m_text->m_row, m_text->m_col, "<");
+	case '.':
+		m_text->next();
+		return new Token(Token::DOT, m_text->m_row, m_text->m_col, ".");
 	default:
 		if(isdigit(c))
 			return readNumber();

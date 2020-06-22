@@ -18,8 +18,8 @@ using namespace std;
 int main()
 {
 	
-	const char* file = "./testcases/while.txt";
-	const char* asmfile = "./testcases/while.asm";
+	const char* file = "./testcases/object.txt";
+	const char* asmfile = "./testcases/object.asm";
 
 
 	Text text(file);

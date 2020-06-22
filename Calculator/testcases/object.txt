@@ -1,0 +1,22 @@
+
+struct MyStructB;
+struct MyStruct{
+	MyStructB bb; 
+	int a;
+	float b;
+};
+
+struct MyStructB{
+	bool c;
+};
+
+MyStruct o = new MyStruct;
+
+o.a
+o.bb.c
+
+o.a = 1
+o.bb = new MyStructB
+
+
+

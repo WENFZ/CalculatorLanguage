@@ -33,12 +33,14 @@ class Identifier
 	{
 		m_type = type;
 		name = value;
+		m_isType = false;
 	}
 	~Identifier()
 	{
 
 	}
 public:
+	bool m_isType;
 	std::string name;
 
 	virtual Type* getType() { return m_type; }
@@ -63,14 +65,20 @@ public:
 class Expression :public ASTNode
 {
 public:
+	Expression()
+	{
+		m_inLeft = false;
+		m_canBeLval = false;
+	}
 	virtual Type* getType() { return nullptr; }
-	virtual bool isAddress() { return m_isAddress; }
-	virtual void setIsAddress(bool is) { m_isAddress = is; }
+	virtual bool isLeftValue() { return false; }
 	virtual Object* toObject()
 	{
 		return nullptr;
 	}
-	bool m_isAddress;
+	bool m_canBeLval;
+	bool m_inLeft;
+
 };
 class IConstance :public Expression
 {
@@ -139,6 +147,7 @@ public:
 		m_id = id;
 		name = id->name;
 		m_inLeft = inLeft;
+		m_canBeLval = true;
 	}
 	virtual Type* getType()
 	{
@@ -148,17 +157,53 @@ public:
 	{
 		visitor->visitObject(this);
 	}
-	bool inLeft() 
-	{ 
-		return m_inLeft; 
-	}
 	virtual Object* toObject()
 	{
 		return this;
 	}
-	bool m_inLeft;
 	Identifier* m_id;
 	
+};
+class MemberAccess :public Expression
+{
+public:
+
+	MemberAccess(Expression* obj, std::string member)
+	{
+		m_obj = obj;
+		m_member = member;
+		m_canBeLval = true;
+	}
+	virtual void accept(Visitor* visitor)
+	{
+		visitor->visitMemberAccessExpression(this);
+	}
+	virtual Type* getType()
+	{
+		auto baseType = m_obj->getType()->toStructure();
+		assert(baseType != nullptr);
+		return baseType->getMemberType(m_member);
+	}
+
+	Expression* m_obj;
+	string m_member;
+};
+class NewExpression :public Expression
+{
+public:
+	NewExpression(Structure* type)
+	{
+		m_type = type;
+	}
+	virtual Type* getType()
+	{
+		return m_type;
+	}
+	virtual void accept(Visitor* visitor)
+	{
+		visitor->visitNewExpression(this);
+	}
+	Structure* m_type;
 };
 class FunctionCall :public Expression
 {
@@ -497,10 +542,7 @@ public:
 	}
 	Expression* m_expression;
 };
-class Declaration :public Statement
-{
 
-};
 class DeclarationStatement :public Statement
 {
 public:
@@ -522,7 +564,10 @@ public:
 	Type* m_type;
 };
 
+class Declaration :public Statement
+{
 
+};
 class VariableDeclaration :public Declaration
 {
 public:
@@ -542,7 +587,6 @@ public:
 		visitor->visitVariableDeclaration(this);
 	}
 	Identifier* m_id;
-	Type* m_type;
 	Expression* m_value;
 };
 class FunctionDeclaration :public Declaration
@@ -578,6 +622,19 @@ public:
 	Statement* m_body;
 };
 
+class StructureDeclaration :public Declaration
+{
+public:
+	StructureDeclaration(Structure* type)
+	{
+		m_type = type;
+	}
+	virtual void accept(Visitor* visitor)
+	{
+		visitor->visitStructureDeclaration(this);
+	}
+	Structure* m_type;
+};
 
 class TranslationUnit :public ASTNode
 {
