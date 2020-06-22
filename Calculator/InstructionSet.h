@@ -200,7 +200,7 @@ public:
 	}
 	std::string Wthm()
 	{
-		return "wrhm";
+		return "wthm";
 	}
 	std::string Rfsm()
 	{
