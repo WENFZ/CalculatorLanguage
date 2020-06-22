@@ -4,7 +4,7 @@
 + a naive implementation of lexer,parser,code generator and virtual machine.
 ## 已完成功能(what have been supported)
 + 支持int，bool，float，structure四种数据类型。  
-+ int,bool,float data types.  
++ int,bool,float,structure data types.  
 + 支持函数声明与递归调用。  
 + function decalaration and recursive function calling.  
 + 支持while语句和if语句。  
