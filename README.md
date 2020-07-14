@@ -14,7 +14,7 @@
 
 ## 待做(todo)
 + 支持void，数组
-+ void，arrary
++ void，array
 + 更好的错误提醒和恢复
 + better error detection and recovery
 + try catch 语句
