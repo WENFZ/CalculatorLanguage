@@ -10,7 +10,7 @@
 + 支持while语句和if语句。  
 + while statement and if statement.  
 + 自动内存管理。  
-+ gc。  
++ gc.
 
 ## 待做(todo)
 + 支持void，数组
